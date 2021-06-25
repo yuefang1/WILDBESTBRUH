@@ -1,0 +1,2821 @@
+if game.PlaceId ~= 2317712696 then
+
+    game:Shutdown()
+
+end
+
+
+
+if getgenv().TSLoaded then
+
+	local ReplicatedStorage = game:GetService("ReplicatedStorage");
+
+	local ModLoad = require(ReplicatedStorage.Modules.Load);
+
+	local UIHandler = ModLoad("UIHandler")
+
+	UIHandler:GiveNotification({
+
+		text = "ThisStuff is already loaded!",
+
+		textcolor = "Red",
+
+		center = true
+
+	});
+
+	return;
+
+end
+
+
+
+if getconnections and syn then
+
+    for i, v in pairs(getconnections(game:GetService("ScriptContext").Error)) do
+
+        v:Disable()
+
+        game:GetService("ScriptContext").Error:Connect(function(...) --// fuck krnl
+
+            local Arguments = {...}
+
+            local Data, Data2 = pcall(function()
+
+                return Arguments[3].Name
+
+            end)
+
+            if Data == false then
+
+                return;
+
+            end
+
+            v:Fire(...)
+
+        end)
+
+    end
+
+end
+
+
+
+--//
+
+
+
+local Core = {
+
+    ["WeaponsStorage"] = {},
+
+    ["Weapons"] = {},
+
+    ["Ambient"] = game:GetService("Lighting").Ambient,
+
+    ["FireworkLaunch"] = {
+
+        Vector3.new(1040, 171, -876),
+
+        Vector3.new(948, 171, -966),
+
+        Vector3.new(1835.715, 239.552, -1638.619),
+
+        Vector3.new(641.765, 69.379, -809.071),
+
+        Vector3.new(-308.91, 160.717, -632.784),
+
+        Vector3.new(893, 105.541, -2316),
+
+        Vector3.new(-781, 90.852, 502),
+
+        Vector3.new(-235, 100.516, 565),
+
+        Vector3.new(242.834, 176.5, 174.759),
+
+        Vector3.new(480, 126.5, 449),
+
+        Vector3.new(-1354, 206.338, -1529),
+
+        Vector3.new(1695.129, 404.78, 1440.797),
+
+        Vector3.new(519.44, 136.704, 1747.772),
+
+        Vector3.new(-80, 122.5, 1517),
+
+        Vector3.new(-1369.706, 157.491, 1957.17),
+
+        Vector3.new(-1896, 122.8, -430)
+
+    },
+
+    HealthValues = {
+
+        Bison = 150,
+
+        Cow = 100,
+
+        Bear = 200,
+
+        Gator = 200,
+
+        Deer = 50
+
+    }
+
+}
+
+local Client = {
+
+    Other = {},
+
+    BreakableGlass = {},
+
+    Keybinds = {}
+
+}
+
+local Settings = {
+
+    ESP = {},
+
+    Aimbot = {
+
+        CheckWorldDistance = true
+
+    },
+
+    Keybinds = {}
+
+}
+
+local Utils = {}
+
+
+
+local getconstants = getconstants or debug.getconstants
+
+local getconstant = getconstant or debug.getconstant
+
+local setconstant = setconstant or debug.setconstant
+
+local getupvalues = getupvalues or debug.getupvalues
+
+local getupvalue = getupvalue or debug.getupvalue
+
+local setupvalue = setupvalue or debug.setupvalue
+
+local getprotos = getprotos or debug.getprotos
+
+local getproto = getproto or debug.getproto
+
+
+
+local Players = game:GetService("Players")
+
+local LocalPlayer = game:GetService("Players").LocalPlayer
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local UserInputService = game:GetService("UserInputService")
+
+local GuiService = game:GetService("GuiService")
+
+local PathfindingService = game:GetService("PathfindingService")
+
+local Mouse = LocalPlayer:GetMouse()
+
+local ClientNetwork = require(ReplicatedStorage.SharedModules.Global)
+
+local LocalRepChar = ClientNetwork.RepCharHandler:GetRepChar(LocalPlayer)
+
+local ConfirmPopup = ClientNetwork.ConfirmPopupUI.new(ClientNetwork.UIObjects.ConfirmPopup)
+
+local CurrentCamera = workspace.CurrentCamera
+
+local GunCheatsConfirmed = false
+
+local DecidingGunCheats = false
+
+local IgnoreGlass = {}
+
+local Blacklisted = {
+
+    5736873;
+
+    210776975;
+
+    1144151130;
+
+    1257533247;
+
+    7003951;
+
+    536331869;
+
+    4719353;
+
+    595827609;
+
+    115096763;
+
+    528525327;
+
+    102706901;
+
+}
+
+
+
+local Library = loadstring(game:HttpGet("https://cdn.thisstuff.xyz/Api/Library/Main2", true))()
+
+local ESPLibrary = loadstring(game:HttpGet("https://cdn.thisstuff.xyz/Api/ESP", true))()
+
+local JSON = loadstring(game:HttpGet("https://raw.githubusercontent.com/NoTwistedHere/Storage/main/Other/JSONWithUserdata", true))()
+
+local Window = Library:AddWindow("The Wild West - ThisStuff.xyz", {
+
+    min_size = Vector2.new(740, 500),
+
+    toggle_key = Enum.KeyCode.RightControl,
+
+    can_resize = true,
+
+    main_color = Color3.fromRGB(41, 74, 122)
+
+})
+
+local GunCheats = Window:AddTab("Gun Cheats")
+
+local CharacterCheats = Window:AddTab("Character Cheats")
+
+local AnimalCheats = Window:AddTab("Animal Cheats")
+
+local Teleports = Window:AddTab("Teleports")
+
+local ESP = Window:AddTab("Esp")
+
+local Aimbot = Window:AddTab("Aimbot")
+
+local Miscellaneous = Window:AddTab("Misc")
+
+local Keybinds = Window:AddTab("Keybinds")
+
+local SettingsT = Window:AddTab("Settings")
+
+
+
+--//
+
+
+
+do
+
+    local Success, Response = pcall(function()
+
+        return JSON:Decode(readfile("ThisStuff_2317712696.json"))
+
+    end)
+
+
+
+    if Success and type(Response) == "table" then
+
+        for i, v in pairs(Response) do
+
+            Settings[i] = v
+
+        end
+
+    end
+
+end
+
+
+
+local function deepCopy(original) --// Thank you roblox
+
+	local copy = {}
+
+	for k, v in pairs(original) do
+
+		if type(v) == "table" then
+
+			v = deepCopy(v)
+
+		end
+
+		copy[k] = v
+
+	end
+
+	return copy
+
+end
+
+
+
+if Settings.IESP then
+
+    Settings.LightningTreeESP = Settings.IESP.LTEnabled
+
+    Settings.IESP = nil
+
+end
+
+
+
+do
+
+
+
+    for i,v in pairs(getconnections(game:GetService("Lighting").Changed)) do 
+
+        v:Disable()
+
+    end
+
+
+
+    game:GetService("Lighting").Changed:Connect(function()
+
+        if game:GetService("Lighting").Ambient ~= Color3.fromRGB(255, 255, 255) and game:GetService("Lighting").Ambient ~= Core.Ambient then
+
+            Core.Ambient = game:GetService("Lighting").Ambient
+
+        end
+
+    end)
+
+
+
+    for i, v in next, getgc(true) do
+
+        if type(v) == "table" and rawget(v, "BaseRecoil") then
+
+            Core["WeaponsStorage"][i] = deepCopy(v)
+
+            Core["Weapons"][i] = v
+
+        end
+
+    end
+
+
+
+    for i,v in next, getupvalues(ClientNetwork.BreakableGlass.GetBreakableGlass, 1)[1] do
+
+        if type(v) == "table" and rawget(v, "Id") then
+
+            Client.BreakableGlass[i] = v
+
+        end
+
+    end
+
+
+
+    Core["FireServer"] = ClientNetwork.Network.FireServer
+
+    Core["CanRoll"] = ClientNetwork.PlayerCharacter.CanRoll
+
+    Core["StopRoll"] = ClientNetwork.PlayerCharacter.StopRoll
+
+    Core["AnimalRiding"] = ClientNetwork.AnimalRiding.GetRidingAnimal()
+
+    Core["Animal-Ragdoll"] = ClientNetwork.Animal.Ragdoll
+
+    Core["Animal-RagdollBoth"] = ClientNetwork.Animal.RagdollBoth
+
+    Core["GetHorseBackAccMod"] = ClientNetwork.ProjectileHandler.GetHorseBackAccMod
+
+    Core["CanShoot"] = ClientNetwork.GunItem.CanShoot
+
+    Core["GetMouseHit"] = ClientNetwork.Utils.GetMouseHit
+
+    Core["IsFirstPerson"] = ClientNetwork.Camera.IsFirstPerson
+
+    Core["Animal-Mount"] = ClientNetwork.Animal.Mount
+
+    Core["Animal-Update"] = ClientNetwork.Animal.Update
+
+    Core["AddRecoil"] = ClientNetwork.Camera.AddRecoil
+
+    Core["UpdateScopeAngles"] = ClientNetwork.Camera.UpdateScopeAngles
+
+end
+
+
+
+ESPLibrary.Overrides.GetColor = function(Character)
+
+    local Player = Players:GetPlayerFromCharacter(Character)
+
+    if Player and Player.TeamColor then
+
+        return Settings.ESP.Team and Color3.fromRGB(Player.TeamColor.Color.R*255, Player.TeamColor.Color.G*255, Player.TeamColor.Color.B*255) or (Settings.ESP.Color or Color3.fromRGB(255, 255, 255))
+
+    end
+
+    return Settings.ESP.Color or Color3.fromRGB(255, 255, 255)
+
+end
+
+
+
+ESPLibrary:AddObjectListener(workspace["WORKSPACE_Geometry"], {
+
+    Recursive = true,
+
+    Type = "ParticleEmitter",
+
+    CustomName = function(Obj) --// was going to add more
+
+        return "Thunderstruck Tree/Cactus"
+
+    end,
+
+    PrimaryPart = function(Obj)
+
+        return Obj.Parent
+
+    end,
+
+    Color = Color3.new(255, 255, 0),
+
+    Validator = function(Obj)
+
+        local Success, Response = pcall(function()
+
+            if Obj.Name == "Strike2" then --// (v.Texture:match("%d+") == "4666023777" or v.Texture:match("%d+") == "4666276725" or v.Texture:match("%d+") == "4592483396")
+
+                return true
+
+            end
+
+
+
+            return false
+
+        end)
+
+        return Success and Response or false
+
+    end,
+
+    IsEnabled = "Thunderstruck"
+
+})
+
+
+
+--//
+
+
+
+if Drawing then
+
+    local Circle = Drawing.new("Circle")
+
+    Circle.Visible = Settings.Aimbot.Visible or false
+
+    Circle.Color = Settings.Aimbot.Color or Color3.fromRGB(255, 255, 255)
+
+    Circle.Thickness = Settings.Aimbot.Thickness or 2
+
+    Circle.Filled = Settings.Aimbot.Filled or false
+
+    Circle.Radius = Settings.Aimbot.Radius or 100
+
+    Circle.NumSides = Settings.Aimbot.NumSides or 100
+
+    Circle.Transparency = Settings.Aimbot.Transparency or 1
+
+    Circle.Position = Vector2.new(0, 0)
+
+
+
+    Client.Other.AimbotCircle = Circle
+
+
+
+    function Client.Other.Aimbot()
+
+        Client.Other.AimbotCircle.Visible = Settings.Aimbot.Visible or false
+
+        Client.Other.AimbotCircle.Color = Settings.Aimbot.Color or Color3.fromRGB(255, 255, 255)
+
+        Client.Other.AimbotCircle.Thickness = Settings.Aimbot.Thickness or 2
+
+        Client.Other.AimbotCircle.Filled = Settings.Aimbot.Filled or false
+
+        Client.Other.AimbotCircle.NumSides = Settings.Aimbot.NumSides or 100
+
+        Client.Other.AimbotCircle.Transparency = Settings.Aimbot.Transparency or 1
+
+        Client.Other.AimbotCircle.Radius = Settings.Aimbot.Radius or 100
+
+    end
+
+end
+
+
+
+function Utils.PickRandom(Table)
+
+    math.randomseed(os.time())
+
+    return Table[math.random(#Table)]
+
+end
+
+
+
+function Utils.GetClosest()
+
+    local ClosestScreenDistance = 9e150
+
+    local ClosestWorldDistance = {9e150, 9e150}
+
+    local AimbotTable;
+
+    
+
+    for i,v in next, workspace["WORKSPACE_Entities"].Players:GetChildren() do
+
+        local Player = Players:FindFirstChild(v.Name)
+
+        local Target = "Head"
+
+
+
+        if not Player or Settings.Aimbot.TeamCheck and Player.Team == LocalPlayer.Team then
+
+            continue;
+
+        end
+
+
+
+        if not Settings.Aimbot.DominateOnly then
+
+            Target = Utils.PickRandom({"Head", "UpperTorso", "LowerTorso", "LeftLowerLeg", "RightLowerLeg", "LeftUpperArm", "LeftLowerArm"})
+
+        end
+
+
+
+        if Player and Player ~= LocalPlayer and v:FindFirstChild(Target) then
+
+            local TargetPart = v[Target]
+
+            local WorldPosition = CurrentCamera:WorldToViewportPoint(TargetPart.Position)
+
+            local ScreenDistance = (Vector2.new(WorldPosition.X, WorldPosition.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+
+            local WorldDistance = (WorldPosition - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+
+            local k, OnScreen = CurrentCamera:WorldToScreenPoint(TargetPart.Position)
+
+
+
+            if not OnScreen then
+
+                continue;
+
+            end
+
+
+
+            local function Finish()
+
+                if ScreenDistance < Settings.Aimbot.Radius and ScreenDistance < ClosestScreenDistance then
+
+                    if Settings.Aimbot.CheckWorldDistance and WorldDistance >= ClosestWorldDistance[2] and ScreenDistance >= ClosestWorldDistance[1] then
+
+                        return;
+
+                    end
+
+                    ClosestScreenDistance = ScreenDistance
+
+                    ClosestWorldDistance = {ScreenDistance, WorldDistance}
+
+                    AimbotTable = {
+
+                        ["ScreenDistance"] = ScreenDistance,
+
+                        ["WorldDistance"] = WorldDistance,
+
+                        ["Player"] = Player,
+
+                        ["Character"] = v,
+
+                        ["Target"] = TargetPart
+
+                    }
+
+                end
+
+            end
+
+
+
+            if Settings.Aimbot.VisibilityCheck and #CurrentCamera:GetPartsObscuringTarget({TargetPart.Position}, {CurrentCamera, LocalPlayer.Character, v}) == 0 then
+
+                Finish()
+
+            elseif not Settings.Aimbot.VisibilityCheck then
+
+                Finish()
+
+            end
+
+        end
+
+    end
+
+    
+
+    return AimbotTable
+
+end
+
+
+
+function Firework(Position, Velocity, Delay)
+
+    coroutine.resume(coroutine.create(function()
+
+        local FireworkProjectile = ReplicatedStorage.Resources.Projectiles.FireworkProjectile:Clone()
+
+        local FireworkExplosion = ReplicatedStorage.Resources.VFX.Attachments.FireworkExplosionAt:Clone()
+
+        local RandomColor = math.random(1, 6)
+
+        local RandomColor1 = math.random(1, 6)
+
+        
+
+        FireworkProjectile.Parent = workspace.Ignore
+
+        FireworkProjectile.LaunchSound.TimePosition = 0.8
+
+        FireworkProjectile.LaunchSound.Playing = true
+
+        FireworkProjectile.Position = Position
+
+        FireworkProjectile.Velocity = Velocity or Vector3.new(0, 300, 0)
+
+        FireworkExplosion.Parent = FireworkProjectile
+
+        FireworkExplosion.Orientation = Vector3.new(-90, 0, 0)
+
+        
+
+        wait(Delay or 0.8)
+
+        
+
+        FireworkProjectile.BlackPowderProjectile.BarrelExhaustFrontal.Enabled = false
+
+        FireworkExplosion.Sound.TimePosition = 3.5
+
+        FireworkExplosion.Sound.Playing = true
+
+        FireworkProjectile.Anchored = true
+
+        
+
+        for i,v in next, FireworkExplosion:GetChildren() do
+
+            if (v.Name == "FireworkEmit" and i == RandomColor or i == RandomColor1) or v.Name == "Flash" then
+
+                pcall(function()
+
+                    v:Emit(v.EmitValue.Value)
+
+                end)
+
+            end
+
+        end
+
+        
+
+        wait(10)
+
+        FireworkProjectile:Destroy()
+
+        FireworkExplosion:Destroy()
+
+    end))
+
+end
+
+
+
+function LaunchStartFireworks()
+
+    for i,v in next, Core["FireworkLaunch"] do
+
+        coroutine.wrap(function()
+
+            wait(Random.new():NextNumber(0, 4))
+
+            Firework(v)
+
+        end)()
+
+    end
+
+end
+
+
+
+function BreakGlass()
+
+    local BrokenGlass = 0
+
+    for i,v in next, getupvalues(ClientNetwork.BreakableGlass.GetBreakableGlass, 1)[1] do
+
+        if type(v) == "table" and rawget(v, "Id") and BrokenGlass < 30 and not _G.IgnoreGlass[v.Id] then
+
+            BrokenGlass += 1
+
+            IgnoreGlass[v.Id] = true
+
+            coroutine.wrap(function()
+
+                wait(Random.new():NextNumber(0, 0.1))
+
+                ClientNetwork.Network:FireServer("BreakGlass", v.Id, Vector3.new(Random.new():NextNumber(0, 5), Random.new():NextNumber(0, 5), Random.new():NextNumber(0, 5)))
+
+                wait(120)
+
+                IgnoreGlass[v.Id] = nil
+
+            end)()
+
+        end
+
+    end
+
+end
+
+
+
+function RagdollSelf()
+
+    local OldAntiRagdoll = Settings.AntiRagdoll
+
+
+
+    Settings.AntiRagdoll = false
+
+    ClientNetwork.PlayerCharacter:Ragdoll()
+
+    Settings.AntiRagdoll = OldAntiRagdoll
+
+end
+
+
+
+function KillSelf()
+
+    local OldNoFallDamage = Settings.NoFallDamage
+
+    local a = math.random(40, 80)
+
+
+
+    Settings.NoFallDamage = false
+
+    ClientNetwork.Network:FireServer("DamageSelf", a)
+
+    ClientNetwork.Network:FireServer("DamageSelf", 100 - a)
+
+    wait(0.2)
+
+    Settings.NoFallDamage = OldNoFallDamage
+
+end
+
+
+
+function CharAdded(Player)
+
+    ESPLibrary:Add(Player.Character, {
+
+        Name = Player.Name,
+
+        Player = Player,
+
+        PrimaryPart = Player.Character.PrimaryPart or Player.Character:WaitForChild("HumanoidRootPart", 20)
+
+    })
+
+end
+
+
+
+function SpinMeRightRound()
+
+    decode = syn.crypt.base64.decode or crypt.base64decode
+
+    getcustomasset = getsynasset or getcustomasset
+
+
+
+    local Sound64 = decode(game:GetObjects("rbxassetid://6385037822")[1].NotHere.Source)
+
+    writefile("YouKnowYouLikeIt.mp3", Sound64)
+
+
+
+    local Sound = Instance.new("Sound")
+
+    Sound.Parent = game:GetService("CoreGui")
+
+    Sound.SoundId = getcustomasset("YouKnowYouLikeIt.mp3")
+
+    Sound.Volume = 1
+
+    Sound:Play()
+
+end
+
+
+
+function UpdateEsp()
+
+    ESPLibrary.Players = Settings.ESP.Enabled or false
+
+    ESPLibrary.Boxes = Settings.ESP.Boxes or false
+
+    ESPLibrary.Tracers = Settings.ESP.Tracers or false
+
+    if not Settings.ESP.Team then
+
+        ESPLibrary.Color = Settings.ESP.Color or Color3.fromRGB(255, 255, 255)
+
+    end
+
+    ESPLibrary.Names = Settings.ESP.ND or false
+
+    ESPLibrary.Team = Settings.ESP.Team or false
+
+    ESPLibrary.TeamMates = Settings.ESP.TeamMates or false
+
+end
+
+
+
+function GetName()
+
+    local Success, Response = pcall(function()
+
+        return Players:GetNameFromUserIdAsync(math.random(1, 1000000))
+
+    end)
+
+    if not Success then
+
+        return GetName()
+
+    end
+
+    return Response
+
+end
+
+
+
+function SaveSettings()
+
+    writefile("ThisStuff_2317712696.json", JSON:Encode(Settings))
+
+end
+
+
+
+function CopyDiscordInvite()
+
+    setclipboard(game:HttpGet("https://thisstuff.xyz/rawdiscord.txt"))
+
+	ClientNetwork.UIHandler:GiveNotification({
+
+		text = "Discord invite link has been copied to your clipboard",
+
+		textcolor = "Green",
+
+		center = false
+
+	});
+
+end
+
+
+
+function RejoinServer()
+
+    local function OnClose(Response)
+
+        if Response == "Confirm" then
+
+            game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId)
+
+        end
+
+    end
+
+    
+
+    ConfirmPopup:OpenConfirmPopup({PopupType = "Choice", Text = "You are about to rejoin, are you sure?", OnClose = OnClose})
+
+end
+
+
+
+function NoJumpCooldown()
+
+    for i,v in next, getprotos(ClientNetwork.PlayerCharacter.OnCharacterAdded) do
+
+        if table.find(getconstants(v), "Jumping")  then
+
+            if Settings.NoJumpCooldown ~= true then
+
+                v = Core["OnCharacterAdded-JumpCooldown"]
+
+            else
+
+                function JumpFunction()
+
+                    ClientNetwork.PlayerCharacter:LowerStamina(20)
+
+                    return 0
+
+                end
+
+                setconstant(v, 4, JumpFunction)
+
+            end
+
+        end
+
+    end
+
+end
+
+
+
+function NoSpread()
+
+    for i, v in next, Core["Weapons"] do
+
+        v.FanAccuracy = not Settings.NoSpread and Core["WeaponsStorage"][i].FanAccuracy or 1
+
+        v.ProjectileAccuracy = not Settings.NoSpread and Core["WeaponsStorage"][i].ProjectileAccuracy or 1
+
+    end
+
+end
+
+
+
+function Wallbang()
+
+    for i, v in next, Core["Weapons"] do
+
+        v.ProjectilePenetration = not Settings.Wallbang and Core["WeaponsStorage"][i].ProjectilePenetration or 500
+
+    end
+
+end
+
+
+
+function InstantReload()
+
+    for i, v in next, Core["Weapons"] do
+
+        v.ReloadSpeed = not Settings.InstantReload and Core["WeaponsStorage"][i].ReloadSpeed or 1000
+
+        v.LoadSpeed = not Settings.InstantReload and Core["WeaponsStorage"][i].LoadSpeed or 1000
+
+        v.LoadEndSpeed = not Settings.InstantReload and Core["WeaponsStorage"][i].LoadEndSpeed or 1000
+
+    end
+
+end
+
+
+
+function TableConvert(Table, String)
+
+    local Previous = Table
+
+    local Last = nil
+
+
+
+    for i,v in next, string.split(String, "_") do
+
+        Previous = Last and Previous[Last] or Previous
+
+        Last = v
+
+    end
+
+    
+
+    return Last, Previous
+
+end
+
+
+
+local function AnimalESP(Animal)
+
+    Animal:WaitForChild("Health", 30)
+
+
+
+    if not Animal:FindFirstChild("Health") then
+
+        return;
+
+    end
+
+
+
+    if Core.HealthValues[Animal.Name] and Animal.Health.Value > Core.HealthValues[Animal.Name] then
+
+        ESPLibrary:Add(Animal, {
+
+            PrimaryPart = Animal:FindFirstChild("HumanoidRootPart"),
+
+            Color = Settings.LegendaryAnimalESPColor or Color3.fromRGB(162, 0, 255),
+
+            Name = ("Legendary %s"):format(Animal.Name),
+
+            IsEnabled = "LegendaryAnimal"
+
+        })
+
+
+
+        return;
+
+    end
+
+    
+
+    ESPLibrary:Add(Animal, {
+
+        PrimaryPart = Animal:FindFirstChild("HumanoidRootPart"),
+
+        Color = Settings.AnimalESPColor or Color3.fromRGB(0, 255, 255),
+
+        Name = Animal.Name,
+
+        IsEnabled = "Animal"
+
+    })
+
+end
+
+
+
+local function Teleport(Position)
+
+    local Path = PathfindingService:CreatePath({AgentRadius = 5, AgentHeight = 5, AgentCanJump = false})
+
+    Path:ComputeAsync(LocalRepChar.RootPart.Position, Position)
+
+    local Waypoints = Path:GetWaypoints()
+
+    local Count = 0
+
+
+
+    ClientNetwork.PlayerCharacter:Ragdoll()
+
+
+
+    local Connection = game:GetService("RunService").RenderStepped:Connect(function()
+
+        if Active then
+
+            LocalRepChar.RootPart.Velocity = Vector3.new(0, 6, 0) --// I <3 tww devs
+
+        end
+
+    end)
+
+
+
+    if #Waypoints == 0 then
+
+        Active = false
+
+        Connection:Disconnect()
+
+        error("false", math.huge)
+
+        return;
+
+    end
+
+
+
+    for _, Waypoint in pairs(Waypoints) do
+
+        ClientNetwork.PlayerCharacter:Ragdoll()
+
+        ClientNetwork.Ragdolls:CreateRagdollForce(LocalRepChar.RootPart, LocalRepChar.RootPart.Position, Waypoint.Position - LocalRepChar.RootPart.Position + Vector3.new(0, 2, 0), 2200)
+
+
+
+        wait(0.046)
+
+        
+
+        ClientNetwork.Ragdolls:CreateRagdollForce(LocalRepChar.RootPart, LocalRepChar.RootPart.Position, Waypoint.Position - LocalRepChar.RootPart.Position + Vector3.new(0, 2, 0), 400)
+
+    end
+
+
+
+    Connection:Disconnect()
+
+
+
+    LocalRepChar.RootPart.Anchored = true
+
+    wait(0.5)
+
+    LocalRepChar.RootPart.CFrame = CFrame.new(Position)
+
+    LocalRepChar.RootPart.Anchored = false
+
+end
+
+
+
+local function CallHorse(Id)
+
+    ClientNetwork.PlayerCharacter:Whistle()
+
+    ClientNetwork.Network:FireServer("CallAnimal", Id, Vector3.new())
+
+end
+
+
+
+local function PrintFactions()
+
+    local String = "Name: %s\nId: %s\nTag: %s\nSettings:\n    Kick Guests: %s\n    Friendly Fire: %s\nLogo Id: %s\nProducts: %s\nMembers: %s:%s:%s (Players : Max Players : Active Players)\nFaction Owner: %s\nFaction Members: %s"
+
+    for i,v in next, ClientNetwork.PlayerData.ReplicatedFactions do
+
+        local wow = ""
+
+        
+
+        for i2,v2 in next, v.Data.Players do
+
+            wow ..= "\n    "..game:GetService("Players"):GetNameFromUserIdAsync(v2.UserId).." ("..v2.UserId..") Rank: "..v2.Rank
+
+        end
+
+        local Text = (String):format(v.Data.Name, v.Id, v.Data.Tag, tostring(v.Data.Settings.KickGuests), tostring(v.Data.Settings.FriendlyFire), v.Data.Logo, #v.Data.Products.FactionExpand,
+
+        v:GetNumPlayers(),
+
+        v:GetMaxPlayers(),
+
+        v:GetNumActivePlayers(),
+
+        game:GetService("Players"):GetNameFromUserIdAsync(v.Data.OriginalCreatorId).." ("..v.Data.OriginalCreatorId..")", wow)
+
+        
+
+        warn("==================================================")
+
+        print("\n"..Text)
+
+    end
+
+end
+
+
+
+local function GunCheatsConfirm()
+
+    if GunCheatsConfirmed then
+
+        return true
+
+    end
+
+
+
+    if DecidingGunCheats then
+
+        repeat
+
+            wait()
+
+        until DecidingGunCheats == false
+
+
+
+        return GunCheatsConfirmed
+
+    end
+
+
+
+    DecidingGunCheats = true
+
+
+
+    local function OnClose(Response)
+
+        DecidingGunCheats = false
+
+        if GunCheatsConfirmed == true then
+
+            return true
+
+        end
+
+
+
+        GunCheatsConfirmed = Response == "Confirm" and true or false
+
+    end
+
+
+
+    ConfirmPopup:OpenConfirmPopup({PopupType = "Choice", Text = "Gun Cheats are risky, are you sure you want to enable them?", OnClose = OnClose})
+
+
+
+    return GunCheatsConfirmed
+
+end
+
+
+
+local function AntiStaffProtect()
+
+    local function OnClose(Response)
+
+        if Response == "Confirm" then
+
+            game:GetService("TeleportService"):Teleport(2317712696)
+
+        end
+
+    end
+
+    ConfirmPopup:OpenConfirmPopup({PopupType = "Choice", Text = "Gun Cheats are risky, are you sure you want to enable them?", OnClose = OnClose})
+
+end
+
+
+
+ClientNetwork.GunItem.CanShoot = function(t)
+
+    --[[if Settings.NoDelay and t.Ammo > 0 then
+
+        return true
+
+    end]]
+
+    
+
+    return Core["CanShoot"](t)
+
+end
+
+
+
+ClientNetwork.Camera.IsFirstPerson = function(...)
+
+    if Settings.SilentAim and rawget(getfenv(0), "script").Name ~= "Camera" and rawget(getfenv(0), "script").Name ~= "GameEvents" then
+
+        return true
+
+    end
+
+    
+
+    return Core["IsFirstPerson"](...)
+
+end
+
+
+
+ClientNetwork.Utils.GetMouseHit = function(...)
+
+    if Settings.SilentAim then
+
+        local Closest = Utils.GetClosest()
+
+
+
+        if Closest then
+
+            local Target = Closest.Target
+
+            return Target.Position + Closest.Character.HumanoidRootPart.Velocity + (Mouse.Origin.Position - Target.Position).Unit
+
+        end
+
+    end
+
+
+
+    return Core["GetMouseHit"](...)
+
+end
+
+
+
+ClientNetwork.Animal.Update = function(t, k)
+
+    if Settings.FastHorse then
+
+        setconstant(Core["Animal-Update"], 9, "FakeBoostTimer")
+
+        setconstant(Core["Animal-Update"], 20, math.huge) --// 1.7
+
+        setconstant(Core["Animal-Update"], 19, math.huge) --// 5.7
+
+        setconstant(Core["Animal-Update"], 23, "FakeMaxSpeedReachTime")
+
+        t.FakeBoostTimer = t.BoostTimer
+
+        t.MaxSpeedReachTime = 0
+
+        t.Sprinting = true
+
+    elseif getconstant(Core["Animal-Update"], 9) == "FakeBoostTimer" then
+
+        setconstant(Core["Animal-Update"], 9, "BoostTimer")
+
+        setconstant(Core["Animal-Update"], 20, 1.7)
+
+        setconstant(Core["Animal-Update"], 19, 5.7)
+
+        setconstant(Core["Animal-Update"], 23, "MaxSpeedReachTime")
+
+    end
+
+
+
+    if Settings.FastHorseSpeed then
+
+        t.WalkSpeedGoal *= Settings.FastHorseSpeedNum or 1
+
+    end
+
+
+
+    if Settings.NoSwimVelocity then
+
+        setconstant(Core["Animal-Update"], 81, "FakeSwimming")
+
+        t.Swimming = false
+
+    elseif getconstant(Core["Animal-Update"], 81) == "FakeSwimming" then
+
+        setconstant(Core["Animal-Update"], 81, "Swimming")
+
+    end
+
+    return Core["Animal-Update"](t, k)
+
+end
+
+
+
+ClientNetwork.Animal.Mount = function(...)
+
+    if Settings.InfiniteBoosts then
+
+        Core["Animal-Mount"](...)
+
+        wait()
+
+
+
+        local RidingAnimal = ClientNetwork.AnimalRiding.GetRidingAnimal()
+
+        RidingAnimal.MaxBoosts = math.huge
+
+        RidingAnimal.Boosts = math.huge
+
+
+
+        return;
+
+    end
+
+    return Core["Animal-Mount"](...)
+
+end
+
+
+
+Core["Rain-Enable"] = hookfunction(ClientNetwork.Rain.Enable, function()
+
+    if Settings.NoRain then
+
+        return;
+
+    end
+
+    return Core["Rain-Enable"]()
+
+end)
+
+
+
+ClientNetwork.PlayerCharacter.LowerStamina = function(k, Value)
+
+    if Settings.InfiniteStamina then
+
+        return;
+
+    end
+
+    ClientNetwork.Network:FireServer("LowerStamina", Value)
+
+end
+
+
+
+Core["Ragdoll"] = hookfunction(ClientNetwork.PlayerCharacter.Ragdoll, function(...)
+
+    if Settings.AntiRagdoll then
+
+        return;
+
+    end
+
+    return Core["Ragdoll"](...)
+
+end)
+
+
+
+Core["EnterRagdoll"] = hookfunction(ClientNetwork.Ragdolls.EnterRagdoll, function(...)
+
+    if Settings.AutoGetUp then
+
+        coroutine.resume(coroutine.create(function()
+
+            local Start = tick()
+
+            repeat
+
+                wait(0)
+
+            until ClientNetwork.PlayerCharacter:CanGetUp() or Start - tick() > 2
+
+            if ClientNetwork.PlayerCharacter.IsRagdolledSelf then
+
+                ClientNetwork.PlayerCharacter:GetUp()
+
+            end
+
+        end))
+
+    end
+
+    if Settings.InstantBreakFree then
+
+        coroutine.resume(coroutine.create(function()
+
+            local Start = tick()
+
+            repeat
+
+                wait(0)
+
+            until ClientNetwork.PlayerCharacter:CanBreakFree() or Start - tick() > 4
+
+            ClientNetwork.PlayerCharacter.BreakFreePerc = 5
+
+        end))
+
+    end
+
+    return Core["EnterRagdoll"](...)
+
+end)
+
+
+
+Core["InitProjectiles"] = hookfunction(ClientNetwork.ProjectileHandler.InitProjectiles, function(c, Value, Data, Other, Callback)
+
+    if Settings.NoSpread then
+
+        Other.accuracy = Random.new():NextNumber(0.9, 1)
+
+    end
+
+
+
+    return Core["InitProjectiles"](c, Value, Data, Other, Callback)
+
+end)
+
+
+
+ClientNetwork.ProjectileHandler.GetHorseBackAccMod = function(...)
+
+    if Settings.NoSpread then
+
+        return 1.3
+
+    end
+
+
+
+    return Core["GetHorseBackAccMod"](...)
+
+end
+
+
+
+ClientNetwork.Animal.Ragdoll = function(...)
+
+    if Settings.AntiAnimalRagdoll then
+
+        return;
+
+    end
+
+
+
+    return Core["Animal-Ragdoll"](...)
+
+end
+
+
+
+ClientNetwork.Animal.RagdollBoth = function(...)
+
+    if Settings.AntiAnimalRagdoll then
+
+        return;
+
+    end
+
+
+
+    return Core["Animal-RagdollBoth"]
+
+end
+
+
+
+ClientNetwork.PlayerCharacter.StopRoll = function(Table, ...)
+
+    if Settings.NoRollCooldown then
+
+        Table.RollDirection = nil
+
+        Table.RollDebounce = false
+
+    end
+
+    return Core["StopRoll"](Table, ...)
+
+end
+
+
+
+ClientNetwork.PlayerCharacter.CanRoll = function(...)
+
+    if Settings.NoRollCooldown then
+
+        return true;
+
+    end
+
+    return Core["CanRoll"](...)
+
+end
+
+
+
+ClientNetwork.Network.FireServer = function(Network, Name, ...)
+
+    local Arguments = {...}
+
+    if Name == "DamageSelf" and Settings.NoFallDamage then
+
+        return;
+
+    end
+
+    return Core["FireServer"](Network, Name, unpack(Arguments))
+
+end
+
+
+
+ClientNetwork.Camera.AddRecoil = function(...)
+
+    if Settings.NoRecoil then
+
+        return;
+
+    end
+
+
+
+    return Core["AddRecoil"](...)
+
+end
+
+
+
+ClientNetwork.Camera.UpdateScopeAngles = function(...)
+
+    if Settings.NoSway then
+
+        return;
+
+    end
+
+
+
+    return Core["UpdateScopeAngles"](...)
+
+end
+
+
+
+--[[
+
+
+
+
+
+TEST
+
+
+
+
+
+]]
+
+
+
+local old = ClientNetwork.LassoItem.Update
+
+ClientNetwork.LassoItem.Update = function(a, b)
+
+    if Settings.Aimbot.Lasso then
+
+        local Closest = Utils.GetClosest()
+
+
+
+        if Closest and a.IsThrowingLasso then
+
+            --ClientNetwork.LassoItem:LassoCharacter(Closest.Character)
+
+            a.LassoCircle.CFrame = CFrame.new(Closest.Target.Position + Closest.Character.HumanoidRootPart.Velocity)
+
+        end
+
+    end
+
+    
+
+    return old(a, b)
+
+end
+
+
+
+
+
+--[[
+
+
+
+
+
+TEST
+
+
+
+
+
+]]
+
+
+
+--//
+
+
+
+--[[Client["NoDelay"] = {GunCheats:AddSwitch("No Delay", function(Value)
+
+    if Value == true and not GunCheatsConfirm() then
+
+        Client["NoDelay"][1]:Set(false)
+
+        return;
+
+    end
+
+
+
+    Settings.NoDelay = Value
+
+end), "NoDelay", "No Delay"}]]
+
+
+
+Client["NoRecoil"] = {GunCheats:AddSwitch("No Recoil", function(Value, hubba)
+
+    if Value == true and not GunCheatsConfirm() then
+
+        Client["NoRecoil"][1]:Set(false)
+
+        return;
+
+    end
+
+
+
+    Settings.NoRecoil = Value
+
+end), "NoRecoil", "No Recoil"}
+
+
+
+Client["NoSpread"] = {GunCheats:AddSwitch("No Spread", function(Value)
+
+    if Value == true and not GunCheatsConfirm() then
+
+        Client["NoSpread"][1]:Set(false)
+
+        return;
+
+    end
+
+
+
+    Settings.NoSpread = Value
+
+    NoSpread()
+
+end), "NoSpread", "No Spread"}
+
+
+
+Client["Wallbang"] = {GunCheats:AddSwitch("Wallbang", function(Value)
+
+    if Value == true and not GunCheatsConfirm() then
+
+        Client["Wallbang"][1]:Set(false)
+
+        return;
+
+    end
+
+
+
+    Settings.Wallbang = Value
+
+    Wallbang()
+
+end), "Wallbang", "Wallbang"}
+
+
+
+Client["InstantReload"] = {GunCheats:AddSwitch("Instant Reload", function(Value)
+
+    if Value == true and not GunCheatsConfirm() then
+
+        Client["InstantReload"][1]:Set(false)
+
+        return;
+
+    end
+
+
+
+    Settings.InstantReload = Value
+
+    InstantReload()
+
+end), "InstantReload", "Instant Reload"}
+
+
+
+Client["NoSway"] = {GunCheats:AddSwitch("No Sway", function(Value)
+
+    Settngs.NoSway = Value
+
+end), "NoSway", "No Sway"}
+
+
+
+Client["NoScopeBlindness"] = {GunCheats:AddSwitch("No Scope Blindness", function(Value)
+
+    Settings.NoScopeBlindness = Value
+
+
+
+    for i,v in next, ClientNetwork.UIObjects.ScopeUI:GetDescendants() do
+
+        if v.Name == "Blackout" then
+
+            v.Transparency = Settings.NoScopeBlindness and 1 or 0
+
+            v.Visible = Settings.NoScopeBlindness and false or true
+
+        end
+
+    end
+
+end), "NoScopeBlindness", "No Scope Blindness"}
+
+
+
+-->>
+
+
+
+Client["InfiniteStamina"] = {CharacterCheats:AddSwitch("Infinite Stamina", function(Value)
+
+    Settings.InfiniteStamina = Value
+
+end), "InfiniteStamina", "Infinite Stamina"}
+
+
+
+Client["NoFallDamage"] = {CharacterCheats:AddSwitch("No Fall Damage", function(Value)
+
+    Settings.NoFallDamage = Value
+
+end), "NoFallDamage", "No Fall Damage"}
+
+
+
+Client["NoRollCooldown"] = {CharacterCheats:AddSwitch("No Roll Cooldown", function(Value)
+
+    Settings.NoRollCooldown = Value
+
+end), "NoRollCooldown", "No Roll Cooldown"}
+
+
+
+Client["NoJumpCooldown"] = {CharacterCheats:AddSwitch("No Jump Cooldown", function(Value)
+
+    Settings.NoJumpCooldown = Value
+
+    NoJumpCooldown()
+
+end), "NoJumpCooldown", "No Jump Cooldown"}
+
+
+
+Client["AntiRagdoll"] = {CharacterCheats:AddSwitch("Anti Ragdoll", function(Value)
+
+    Settings.AntiRagdoll = Value
+
+end), "AntiRagdoll", "Anti Ragdoll"}
+
+
+
+Client["AutoGetUp"] = {CharacterCheats:AddSwitch("Auto Get Up", function(Value)
+
+    Settings.AutoGetUp = Value
+
+end), "AutoGetUp", "Auto Get Up"}
+
+
+
+Client["InstantBreakFree"] = {CharacterCheats:AddSwitch("Instant Break Free", function(Value)
+
+    Settings.InstantBreakFree = Value
+
+    wait()
+
+    if Settings.InstantBreakFree then
+
+        ClientNetwork.PlayerCharacter.BreakFreePerc = 5
+
+    end
+
+end), "InstantBreakFree", "Instant Break Free"}
+
+
+
+if getconnections then
+
+    Client["TPInvisible"] = {CharacterCheats:AddSwitch("Teleport Bypass/Invisible (Client Sided)", function(Value)
+
+        Settings.TPInvisible = Value
+
+        if Value then
+
+            getconnections(ReplicatedStorage.Communication.Events.ACTrigger.OnClientEvent)[1]:Disable()
+
+            return;
+
+        end
+
+        
+
+        getconnections(ReplicatedStorage.Communication.Events.ACTrigger.OnClientEvent)[1]:Enable()
+
+    end), "TPInvisible", "Teleport Bypass/Invisible (Client Sided)"}
+
+end
+
+
+
+CharacterCheats:AddButton("Become The Living Dead", function(Value)
+
+    ClientNetwork.ReplicatedState.State.Dead = false
+
+    LocalRepChar.Human:SetStateEnabled("Dead", false)
+
+    LocalRepChar.Human:SetStateEnabled("Ragdoll", false)
+
+    ClientNetwork.Ragdolls:ExitRagdoll(LocalPlayer.Character)
+
+end)
+
+
+
+-->> 
+
+
+
+Client["InfiniteBoosts"] = {AnimalCheats:AddSwitch("Infinite Boosts", function(Value)
+
+    Settings.InfiniteBoosts = Value
+
+    if Settings.InfiniteBoosts then
+
+        local RidingAnimal = ClientNetwork.AnimalRiding.GetRidingAnimal()
+
+        RidingAnimal.MaxBoosts = math.huge
+
+        RidingAnimal.Boosts = math.huge
+
+    else
+
+        local RidingAnimal = ClientNetwork.AnimalRiding.GetRidingAnimal()
+
+        RidingAnimal.MaxBoosts = Core["AnimalRiding"].MaxBoosts
+
+        RidingAnimal.Boosts = Core["AnimalRiding"].MaxBoosts
+
+    end
+
+end), "InfiniteBoosts", "Infinite Boosts"}
+
+
+
+Client["AntiAnimalRagdoll"] = {AnimalCheats:AddSwitch("Anti Ragdoll", function(Value)
+
+    Settings.AntiAnimalRagdoll = Value
+
+end), "AntiAnimalRagdoll", "Anti Ragdoll"}
+
+
+
+Client["FastHorse"] = {AnimalCheats:AddSwitch("Fast Horse", function(Value)
+
+    Settings.FastHorse = Value
+
+end), "FastHorse", "Fast Horse"}
+
+
+
+Client["NoSwimVelocity"] = {AnimalCheats:AddSwitch("No Swimming Velocity", function(Value)
+
+    Settings.NoSwimVelocity = Value
+
+end), "NoSwimVelocity", "No Swimming Velocity"}
+
+
+
+Client["FastHorseSpeed"] = {AnimalCheats:AddSwitch("Modify Horse Speed", function(Value)
+
+    Settings.FastHorseSpeed = Value
+
+end), "FastHorseSpeed", "Modify Horse Speed"}
+
+
+
+AnimalCheats:AddSlider("Horse Speed Modifier", function(Value)
+
+    Settings.FastHorseSpeedNum = Value
+
+end, {
+
+    ["min"] = 0,
+
+    ["max"] = 10,
+
+    ["decimals"] = true
+
+})
+
+
+
+-->>
+
+
+
+local TeleportsTable = {
+
+    ["Bronze City"] = Vector3.new(699, 38.969, -776);
+
+    ["Tribal Village"] = Vector3.new(-1417, 141.2, -887);
+
+    ["Howling Peak"] = Vector3.new(1769, 329.392, 1415);
+
+    ["Puerto Dorado"] = Vector3.new(-1441, 122.5, 1839);
+
+    ["Callahan Manor"] = Vector3.new(-509, 40.5, 475);
+
+    ["Windmill Camp"] = Vector3.new(1789, 201.007, -1726);
+
+    ["Outlaw's Perch"] = Vector3.new(81, 110.874, 229);
+
+    ["Buried Library"] = Vector3.new(-659, -25.5, 1282);
+
+    ["Desert Mineshaft (Desert Entrance)"] = Vector3.new(-80, -41.5, 955);
+
+    ["Desert Mineshaft (Bearpaw Valley Entrance)"] = Vector3.new(205, 50.649, 940);
+
+    ["Desert Quarry"] = Vector3.new(-252, -97.5, 1663);
+
+    ["TrainStation (Bearpaw Valley)"] = Vector3.new(466, 43.408, 1402.087);
+
+    ["Fort Spencer"] = Vector3.new(463.22, 94.279, 1755.329);
+
+    ["Fort Henry"] = Vector3.new(853, 71.714, -2245);
+
+    ["Max Security Prison"] = Vector3.new(-455.66, 41.505, -1705.892);
+
+    ["Hunting Base"] = Vector3.new(-1835, 89.23, -410);
+
+    ["Sinner's Canyon"] = Vector3.new(-715, 176.381, 2645);
+
+    ["Water Cave"] = Vector3.new(1113.161, 43.237, 742.032);
+
+}
+
+
+
+for i,v in next, TeleportsTable do
+
+    Teleports:AddButton(i, function()
+
+        Teleport(v)
+
+    end)
+
+end
+
+
+
+-->>
+
+
+
+Client["LightningTreeESP"] = {ESP:AddSwitch("Thunderstruck Tree ESP", function(Value)
+
+    Settings.LightningTreeESP = Value
+
+    ESPLibrary.Thunderstruck = Value
+
+end), "LightningTreeESP", "Thunderstruck Tree ESP"}
+
+
+
+Client["LegendaryAnimalESP"] = {ESP:AddSwitch("Legendary Animal ESP", function(Value)
+
+    Settings.LegendaryAnimalESP = Value
+
+    ESPLibrary.LegendaryAnimal = Value
+
+end), "LegendaryAnimalESP", "Legendary Animal ESP"}
+
+
+
+Client["AnimalESP"] = {ESP:AddSwitch("Animal ESP", function(Value)
+
+    Settings.AnimalESP = Value
+
+    ESPLibrary.Animal = Value
+
+end), "AnimalESP", "AnimalESP"}
+
+
+
+Client["ESP_Enabled"] = {ESP:AddSwitch("Player ESP", function(Value)
+
+    Settings.ESP.Enabled = Value
+
+    UpdateEsp()
+
+end), "ESP_Enabled", "Player ESP"}
+
+
+
+Client["ESP_Boxes"] = {ESP:AddSwitch("Boxes", function(Value)
+
+    Settings.ESP.Boxes = Value
+
+    UpdateEsp()
+
+end), "ESP_Boxes", "Boxes"}
+
+
+
+Client["ESP_Tracers"] = {ESP:AddSwitch("Tracers", function(Value)
+
+    Settings.ESP.Tracers = Value
+
+    UpdateEsp()
+
+end), "ESP_Tracers", "Tracers"}
+
+
+
+Client["ESP_TeamMates"] = {ESP:AddSwitch("Show Team Mates", function(Value)
+
+    Settings.ESP.TeamMates = Value
+
+    UpdateEsp()
+
+end), "ESP_TeamMates", "Show Team Mates"}
+
+
+
+Client["ESP_Team"] = {ESP:AddSwitch("Use Team Color", function(Value)
+
+    Settings.ESP.Team = Value
+
+    UpdateEsp()
+
+end), "ESP_Team", "Use Team Color"}
+
+
+
+Client["ESP_ND"] = {ESP:AddSwitch("Show Name/Distance", function(Value)
+
+    Settings.ESP.ND = Value
+
+    UpdateEsp()
+
+end), "ESP_ND", "Show Name/Distance"}
+
+
+
+--[[Client["AnimalESPColor"] = ESP:AddColorPicker("Animal ESP Color", function(Value)
+
+    Settings.AnimalESPColor = Value
+
+end)
+
+
+
+Client["LegendaryAnimalESPColor"] = ESP:AddColorPicker("Legendary Animal ESP Color", function(Value)
+
+    Settings.LegendaryAnimalESPColor = Value
+
+end)]]
+
+
+
+-->>
+
+
+
+Client["SilentAim"] = {Aimbot:AddSwitch("Silent Aim", function(Value)
+
+    Settings.SilentAim = Value
+
+end), "SilentAim", "Silent Aim"}
+
+
+
+Client["Aimbot_TeamCheck"] = {Aimbot:AddSwitch("Team Check", function(Value)
+
+    Settings.Aimbot.TeamCheck = Value
+
+end), "Aimbot_TeamCheck", "Team Check"}
+
+
+
+Client["Aimbot_DominateOnly"] = {Aimbot:AddSwitch("Headshot Only", function(Value)
+
+    Settings.Aimbot.DominateOnly = Value
+
+end), "Aimbot_DominateOnly", "Headshot Only"}
+
+
+
+Client["Aimbot_VisibilityCheck"] = {Aimbot:AddSwitch("Visibility Check", function(Value)
+
+    Settings.Aimbot.VisibilityCheck = Value
+
+end), "Aimbot_VisibilityCheck", "Visibility Check"}
+
+
+
+Client["Aimbot_CheckWorldDistance"] = {Aimbot:AddSwitch("Check Distance of Player", function(Value)
+
+    Settings.Aimbot.CheckWorldDistance = Value
+
+end), "Aimbot_CheckWorldDistance", "Check Distance of Player"}
+
+
+
+if type(Drawing) == "table" then
+
+    Client["Aimbot_Visible"] = {Aimbot:AddSwitch("Show Circle", function(Value)
+
+        Settings.Aimbot.Visible = Value
+
+        Client.Other.Aimbot()
+
+    end), "Aimbot_Visible", "Show Circle"}
+
+
+
+    Client["Aimbot_Filled"] = {Aimbot:AddSwitch("Circle Filled", function(Value)
+
+        Settings.Aimbot.Filled = Value
+
+        Client.Other.Aimbot()
+
+    end), "Aimbot_Filled", "Circle Filled"}
+
+
+
+    Client["Aimbot_Transparency"] = Aimbot:AddSlider("Circle Transparency", function(Value)
+
+        Settings.Aimbot.Transparency = Value
+
+        Client.Other.Aimbot()
+
+    end, {
+
+        ["min"] = 0,
+
+        ["max"] = 1,
+
+        ["decimals"] = true
+
+    })
+
+
+
+    Client["Aimbot_NumSides"] = Aimbot:AddSlider("Number of Sides", function(Value)
+
+        Settings.Aimbot.NumSides = Value
+
+        Client.Other.Aimbot()
+
+   end, {
+
+        ["min"] = 2,
+
+        ["max"] = 300,
+
+    })
+
+
+
+    Client["Aimbot_Radius"] = Aimbot:AddSlider("FOV Radius", function(Value)
+
+        Settings.Aimbot.Radius = Value
+
+        Client.Other.Aimbot()
+
+    end, {
+
+        ["min"] = 10,
+
+        ["max"] = 900,
+
+    })
+
+
+
+    Aimbot:AddLabel("Circle Color")
+
+
+
+    Client["Aimbot_Color"] = Aimbot:AddColorPicker(function(Value)
+
+        Settings.Aimbot.Color = Value
+
+        Client.Other.Aimbot()
+
+    end)
+
+else
+
+    Settings.Aimbot.Radius = 1000
+
+end
+
+
+
+-->>
+
+
+
+Client["NoDamageOverlay"] = {Miscellaneous:AddSwitch("No Damage Overlay", function(Value)
+
+    Settings.NoDamageOverlay = Value
+
+    if Value then
+
+        setconstant(ClientNetwork.FX.Update, 63, "ZIndex")
+
+    else
+
+        setconstant(ClientNetwork.FX.Update, 63, "ImageTransparency")
+
+    end
+
+end), "NoDamageOverlay", "No Damage Overlay"}
+
+
+
+Client["Fullbright"] = {Miscellaneous:AddSwitch("Fullbright", function(Value)
+
+    Settings.Fullbright = Value
+
+    if Settings.Fullbright ~= true then
+
+        game:GetService("Lighting").Ambient = Core.Ambient
+
+        wait(0.2)
+
+        game:GetService("Lighting").Ambient = Core.Ambient
+
+    end
+
+end), "Fullbright", "Fullbright"}
+
+
+
+Client["NoRain"] = {Miscellaneous:AddSwitch("No Rain", function(Value)
+
+    Settings.NoRain = Value
+
+    if Value then
+
+        ClientNetwork.Rain:Disable()
+
+    end
+
+end), "NoRain", "No Rain"}
+
+
+
+Client["NameProtect"] = {Miscellaneous:AddSwitch("Name Protect", function(Value)
+
+    Settings.NameProtect = Value
+
+    if Settings.NameProtect then
+
+        local Name = GetName()
+
+        ClientNetwork.Network:FireServer("SetDisplayName", Name)
+
+    end
+
+end), "NameProtect", "Name Protect"}
+
+
+
+Client["TumbleweedMayhem"] = {Miscellaneous:AddSwitch("Tumbleweed Mayhem (Client Sided)", function(Value)
+
+    Settings.TumbleweedMayhem = Value
+
+    if Settings.TumbleweedMayhem ~= true then
+
+        return;
+
+    end
+
+    repeat
+
+        wait(0.5)
+
+        ClientNetwork.Tumbleweeds:Trigger()
+
+    until not Settings.TumbleweedMayhem
+
+end), "TumbleweedMayhem", "Tumbleweed Mayhem"}
+
+
+
+Miscellaneous:AddButton("Print Faction Info (Factions in your server)", PrintFactions)
+
+
+
+Miscellaneous:AddButton("Launch Starter Fireworks (Client Sided)", LaunchStartFireworks)
+
+
+
+Miscellaneous:AddButton("Break 30 Glass (You might get banned if you press this too much)", BreakGlass)
+
+
+
+Miscellaneous:AddButton("Kill Self", KillSelf)
+
+
+
+Miscellaneous:AddButton("Ragdoll Self", RagdollSelf)
+
+
+
+-->>
+
+
+
+Client["Keybinds"]["BreakGlass"] = Keybinds:AddKeybind("Break Glass", function(Keybind)
+
+    Settings.Keybinds.BreakGlass = Keybind
+
+    BreakGlass()
+
+end, {standard = nil})
+
+
+
+Client["Keybinds"]["KillSelf"] = Keybinds:AddKeybind("Kill Self", function(Keybind)
+
+    Settings.Keybinds.KillSelf = Keybind
+
+    KillSelf()
+
+end, {standard = nil})
+
+
+
+Client["Keybinds"]["RagdollSelf"] = Keybinds:AddKeybind("Ragdoll Self", function(Keybind)
+
+    Settings.Keybinds.RagdollSelf = Keybind
+
+    RagdollSelf()
+
+end, {standard = nil})
+
+
+
+for i,v in next, Client do
+
+    if type(v) == "table" and type(v[1]) == "table" and v[1].Set and type(v[2]) == "string" then
+
+        pcall(function()
+
+            Client["Keybinds"][i] = Keybinds:AddKeybind(v[3], function(Keybind)
+
+                local Index, Setting = TableConvert(Settings, v[2])
+
+                Settings.Keybinds[Index] = Keybind
+
+                v[1]:Set(not Setting[Index])
+
+            end)
+
+        end)
+
+    end
+
+end
+
+
+
+-->>
+
+
+
+Client["AutoSave"] = SettingsT:AddSwitch("Auto Save", function(Value)
+
+    Settings.AutoSave = Value
+
+end)
+
+
+
+Client["AntiStaff"] = SettingsT:AddSwitch("Staff Protection", function(Value)
+
+    Settings.AntiStaff = Value
+
+
+
+    for i,v in next, Players:GetPlayers() do
+
+        if table.find(Blacklisted, Player.UserId) or (v:IsInGroup(3755133) and v:GetRankInGroup(3755133) > 1) then
+
+            AntiStaffProtect()
+
+        end
+
+    end
+
+end)
+
+
+
+SettingsT:AddButton("Save Settings", SaveSettings)
+
+
+
+SettingsT:AddButton("Copy Discord Invite", CopyDiscordInvite)
+
+
+
+SettingsT:AddButton("Rejoin Server", RejoinServer)
+
+
+
+SettingsT:AddLabel("You can find more scripts at https://thisstuff.xyz/features.html")
+
+
+
+--//
+
+
+
+--Client["AnimalESPColor"]:Set(Settings.AnimalESPColor or Color3.fromRGB(0, 255, 255))
+
+--Client["LegendaryAnimalESPColor"]:Set(Settings.LegendaryAnimalESPColor or Color3.fromRGB(162, 0, 255))
+
+
+
+for i,v in next, Client do
+
+    if type(v) == "table" then
+
+        if type(v[1]) == "table" and type(v[2]) == "string" then
+
+            local Index, Setting = TableConvert(Settings, v[2])
+
+            if v[1].Set then
+
+                v[1]:Set(Setting[Index] and Setting[Index] or false)
+
+            end
+
+        elseif v.Set and v.type == "Slider" then
+
+            local Index, Setting = TableConvert(Settings, i)
+
+            v:Set(Setting[Index] and Setting[Index] or 0)
+
+        elseif v.Set then
+
+            local Index, Setting = TableConvert(Settings, i)
+
+            v:Set(Setting[Index] and Setting[Index] or false)
+
+        end
+
+    end
+
+end
+
+
+
+for i,v in next, Client["Keybinds"] do
+
+    if type(v) == "table" and v.SetKeybind then
+
+        v:SetKeybind(Settings.Keybinds[i] or nil)
+
+    end
+
+end
+
+
+
+--//
+
+
+
+coroutine.wrap(function()
+
+	while wait(10) do
+
+        if Settings.AutoSave then
+
+		    SaveSettings()
+
+        end
+
+        if Settings.NameProtect then
+
+            local Name = GetName()
+
+            ClientNetwork.Network:FireServer("SetDisplayName", Name)
+
+        end
+
+	end
+
+end)()
+
+
+
+ClientNetwork.UIObjects.ScopeUI.Scope:GetPropertyChangedSignal("Visible"):Connect(function()
+
+    for i,v in next, ClientNetwork.UIObjects.ScopeUI.Scope:GetDescendants() do
+
+        if v.Name == "Blackout" then
+
+            v.Transparency = Settings.NoScopeBlindness and 1 or 0
+
+            v.Visible = Settings.NoScopeBlindness and false or true
+
+        end
+
+    end
+
+end)
+
+
+
+ClientNetwork.UIObjects.ScopeUI.Binos:GetPropertyChangedSignal("Visible"):Connect(function()
+
+    for i,v in next, ClientNetwork.UIObjects.ScopeUI.Binos:GetDescendants() do
+
+        if v.Name == "Blackout" then
+
+            v.Transparency = Settings.NoScopeBlindness and 1 or 0
+
+            v.Visible = Settings.NoScopeBlindness and false or true
+
+        end
+
+    end
+
+end)
+
+
+
+Players.PlayerAdded:Connect(function(Player)
+
+    if Settings.AntiStaff and table.find(Blacklisted, Player.UserId) or (Player:IsInGroup(3755133) and Player:GetRankInGroup(3755133) > 1) then
+
+        AntiStaffProtect()
+
+    end
+
+    Player.CharacterAdded:Connect(function()
+
+        CharAdded(Player)
+
+    end)
+
+end)
+
+
+
+for i,v in next, workspace["WORKSPACE_Entities"].Animals:GetChildren() do
+
+    AnimalESP(v)
+
+end
+
+
+
+workspace["WORKSPACE_Entities"].Animals.ChildAdded:Connect(function(Animal)
+
+    AnimalESP(Animal)
+
+end)
+
+
+
+ClientNetwork.ReplicatedState:GetStateChangedSignal("Stamina"):Connect(function()
+
+    if ClientNetwork.ReplicatedState.State.Stamina ~= 100 and Settings.InfiniteStamina then
+
+        ClientNetwork.ReplicatedState.State.Stamina = 100
+
+    end
+
+end)
+
+
+
+for i,v in next, Players:GetPlayers() do
+
+    v.CharacterAdded:Connect(function()
+
+        CharAdded(v)
+
+    end)
+
+    if v.Character then
+
+        CharAdded(v)
+
+    end
+
+end
+
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+
+    if Settings.Aimbot.Visible then
+
+        Client.Other.AimbotCircle.Position = Vector2.new(Mouse.X, Mouse.Y + GuiService:GetGuiInset().Y)
+
+    end
+
+    if Settings.Fullbright then
+
+        game:GetService("Lighting").Ambient = Color3.fromRGB(255, 255, 255)
+
+    end
+
+end)
+
+
+
+--//
+
+
+
+if Settings.Bang then
+
+    SpinMeRightRound()
+
+end
+
+
+
+--//
+
+
+
+ESPLibrary:Toggle(true)
+
+
+
+getgenv().TSLoaded = true
+
+
+
+ClientNetwork.UIHandler:GiveNotification({
+
+	text = "Created by NoTwistedHere",
+
+	textcolor = "Gold",
+
+	center = true
+
+});
+
+wait(0.5)
+
+ClientNetwork.UIHandler:GiveNotification({
+
+	text = "Report any bugs to me",
+
+	textcolor = "Red",
+
+	center = true
+
+});
+
+
+
+wait(0.1)
+
+
+
+LaunchStartFireworks()
